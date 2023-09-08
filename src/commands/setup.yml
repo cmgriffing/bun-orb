@@ -1,0 +1,18 @@
+description: >
+  This command runs a setup script to install Bun.
+# What will this command do?
+# Descriptions should be short, simple, and clear.
+parameters:
+  version:
+    type: string
+    description: 'The version of Bun to install. (e.g. "latest", "canary", "0.5.6", <sha>)'
+    default: latest
+steps:
+  - node/install:
+      install-yarn: false
+      node-version: "18.17.1"
+  - run:
+      environment:
+        BUN_VERSION: <<parameters.version>>
+      name: Bun Setup
+      command: <<include(scripts/setup.sh)>>

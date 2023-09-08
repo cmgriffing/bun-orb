@@ -1,0 +1,13 @@
+description: >
+  Runs a set of bun commands
+# Provide a use-case based example for using this orb.
+# Everything in the `usage` section will be displayed in the orb registry.
+# Comments are not retained.
+usage:
+  version: 2.1
+  orbs:
+    bun-orb: cmgriffing/bun-orb@1.2.3
+  workflows:
+    use-bun-orb:
+      jobs:
+        - bun-orb/install

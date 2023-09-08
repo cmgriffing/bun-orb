@@ -1,0 +1,14 @@
+version: 2.1
+
+description: >
+  An orb for using Bun in CircleCI
+# What will your orb allow users to accomplish?
+# Descriptions should be short, simple, and informative.
+
+# This information will be displayed in the orb registry and is not mandatory.
+display:
+  home_url: "https://github.com/cmgriffing/bun-orb"
+  source_url: "https://github.com/cmgriffing/bun-orb"
+# If your orb requires other orbs, you can import them like this. Otherwise remove the "orbs" stanza.
+orbs:
+  node: circleci/node@5.1.0

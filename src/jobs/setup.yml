@@ -1,0 +1,13 @@
+description: >
+  Installs Bun into the environment for use in scripts during CI/CD.
+
+executor: default
+
+parameters:
+  version:
+    type: string
+    description: 'The version of Bun to install. (e.g. "latest", "canary", "0.5.6", <sha>)'
+    default: latest
+steps:
+  - setup:
+      version: << parameters.version >>
