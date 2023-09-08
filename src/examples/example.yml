@@ -6,8 +6,8 @@ description: >
 usage:
   version: 2.1
   orbs:
-    bun-orb: cmgriffing/bun-orb@1.2.3
+    bun-orb: cmgriffing/bun-orb@0.0.2
   workflows:
     use-bun-orb:
       jobs:
-        - bun-orb/install
+        - bun-orb/setup

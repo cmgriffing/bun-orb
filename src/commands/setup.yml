@@ -12,7 +12,8 @@ steps:
       install-yarn: false
       node-version: "18.17.1"
   - run:
+      shell: node
       environment:
         BUN_VERSION: <<parameters.version>>
       name: Bun Setup
-      command: <<include(scripts/setup.sh)>>
+      command: <<include(scripts/setup.js)>>
