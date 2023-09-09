@@ -1,7 +1,5 @@
 description: >
   This command runs a setup script to install Bun.
-# What will this command do?
-# Descriptions should be short, simple, and clear.
 parameters:
   version:
     type: string
