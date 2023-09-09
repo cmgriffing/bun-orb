@@ -3,7 +3,7 @@ description: >
 usage:
   version: 2.1
   orbs:
-    bun-orb: cmgriffing/bun-orb@0.0.16
+    bun-orb: cmgriffing/bun-orb@0.0.23
   jobs:
     build:
       docker:
@@ -11,10 +11,21 @@ usage:
       steps:
         - checkout
         - bun/setup
+        - restore_cache:
+            keys:
+              # Find a cache corresponding to this specific bun.lockb checksum
+              # when this file is changed, this key will fail
+              - v1-bun-deps-{{ checksum "bun.lockb" }}
+              # Find the most recently generated cache used from any branch
+              - v1-bun-deps-
         - run: >
-          bun install
-          bun bake
-
+            bun install
+            bun bake
+        - save_cache:
+            key: v1-bun-deps-{{ checksum "bun.lockb" }}
+            paths:
+              - ~/.bun/install/cache
+              - node_modules
   workflows:
     use-bun-orb:
       jobs:

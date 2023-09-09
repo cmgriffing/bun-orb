@@ -1,10 +1,8 @@
 "use strict";
 
 const fs = require("fs");
-const { homedir } = require("os");
 const { join, resolve } = require("path");
-const zlib = require("zlib");
-const { execSync, spawnSync } = require("child_process");
+const { execSync } = require("child_process");
 
 const BUN_VERSION = process.env.BUN_VERSION;
 
@@ -26,47 +24,47 @@ function getDownloadUrl(options = {}) {
   );
   return {
     url: href,
-    cacheKey: /^latest|canary|action/i.test(release)
-      ? null
-      : `bun-${release}-${os}-${arch}-${avx2}-${profile}`,
   };
 }
 
 function verifyBun(path) {
-  console.log({ path });
   const result = execSync(`${path} --version`, {
     ignoreReturnCode: true,
-    // encoding: "utf8",
   });
   console.log({ result: result.toString().trim() });
   return result ? result.toString().trim() : undefined;
 }
 
 async function setup() {
-  const { url, cacheKey } = getDownloadUrl({ version: BUN_VERSION });
-  // const cacheEnabled = cacheKey && cache.isFeatureAvailable();
-  const cacheEnabled = false;
   const dir = "/usr/local/bin";
-  // action.addPath(dir);
   const path = join(dir, "bun");
+
+  let cacheExists = false;
+
+  try {
+    const hasAccess = !fs.accessSync(path);
+    cacheExists = hasAccess && BUN_VERSION !== "latest";
+  } catch (e) {
+    // Cached binary not found
+  }
+
   let version;
-  let cacheHit = false;
-  if (cacheEnabled) {
-    // const cacheRestored = await restoreCache([path], cacheKey);
-    const cacheRestored = false;
-    if (cacheRestored) {
-      version = await verifyBun(path);
-      if (version) {
-        cacheHit = true;
-        console.info("Using a cached version of Bun.");
-      } else {
-        console.warn(
-          "Found a cached version of Bun, but it appears to be corrupted? Attempting to download a new version."
-        );
-      }
+  if (cacheExists) {
+    version = await verifyBun(path);
+    if (version) {
+      console.info("Using a cached version of Bun.");
+      return {
+        version,
+      };
+    } else {
+      console.warn(
+        "Found a cached version of Bun, but it appears to be corrupted? Attempting to download a new version."
+      );
     }
   }
-  if (!cacheHit) {
+
+  if (!version) {
+    const { url } = getDownloadUrl({ version: BUN_VERSION });
     console.info(`Downloading a new version of Bun: ${url}`);
     const zipBuffer = await (
       await fetch(url, {
@@ -81,15 +79,9 @@ async function setup() {
 
     fs.writeFileSync(bunZipPath, Buffer.from(zipBuffer));
 
-    const unzipResult = execSync(`unzip -u ${bunZipPath} -d ${bunFolderPath}`);
-
-    if (unzipResult) {
-      console.log(unzipResult.toString());
-    }
+    execSync(`unzip -u ${bunZipPath} -d ${bunFolderPath}`);
 
     fs.mkdirSync(dir, { recursive: true });
-
-    const lsResult = execSync("ls -a");
 
     execSync(
       `sudo cp ${resolve(
@@ -98,24 +90,17 @@ async function setup() {
       )} ${path}`
     );
 
-    // fs.writeFileSync(path, extractedBun, { encoding: "utf8" });
     version = await verifyBun(path);
   }
+
   if (!version) {
     throw new Error(
       "Downloaded a new version of Bun, but failed to check its version? Try again in debug mode."
     );
   }
-  if (cacheEnabled) {
-    try {
-      // await saveCache([path], cacheKey);
-    } catch (error) {
-      console.warn("Failed to save Bun to cache.");
-    }
-  }
+
   return {
     version,
-    cacheHit,
   };
 }
 

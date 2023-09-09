@@ -9,9 +9,16 @@ steps:
   - node/install:
       install-yarn: false
       node-version: "18.17.1"
+  - restore_cache:
+      key: bun-{{ arch }}-<< parameters.version >>
   - run:
       shell: node
       environment:
         BUN_VERSION: <<parameters.version>>
       name: Bun Setup
       command: <<include(scripts/setup.js)>>
+  - save_cache:
+      key: bun-{{ arch }}-<< parameters.version >>
+      paths:
+        - bun
+        - bun.zip
