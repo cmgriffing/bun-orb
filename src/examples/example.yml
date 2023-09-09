@@ -3,7 +3,7 @@ description: >
 usage:
   version: 2.1
   orbs:
-    bun-orb: cmgriffing/bun-orb@0.0.23
+    bun-orb: cmgriffing/bun-orb@0.0.24
   jobs:
     build:
       docker:

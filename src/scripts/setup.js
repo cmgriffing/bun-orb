@@ -43,7 +43,8 @@ async function setup() {
 
   try {
     const hasAccess = !fs.accessSync(path);
-    cacheExists = hasAccess && BUN_VERSION !== "latest";
+    cacheExists =
+      hasAccess && BUN_VERSION !== "latest" && BUN_VERSION !== "canary";
   } catch (e) {
     // Cached binary not found
   }
