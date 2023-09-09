@@ -2,7 +2,7 @@
 
 const fs = require("fs");
 const { homedir } = require("os");
-const { join } = require("path");
+const { join, resolve } = require("path");
 const zlib = require("zlib");
 const { execSync, spawnSync } = require("child_process");
 
@@ -46,7 +46,7 @@ async function setup() {
   const { url, cacheKey } = getDownloadUrl({ version: BUN_VERSION });
   // const cacheEnabled = cacheKey && cache.isFeatureAvailable();
   const cacheEnabled = false;
-  const dir = join(homedir(), ".bun", "bin");
+  const dir = "/usr/local/bin";
   // action.addPath(dir);
   const path = join(dir, "bun");
   let version;
@@ -76,22 +76,28 @@ async function setup() {
       })
     ).arrayBuffer();
 
-    fs.writeFileSync("./bun.zip", Buffer.from(zipBuffer));
+    const bunZipPath = resolve(__dirname, "./bun.zip");
+    const bunFolderPath = resolve(__dirname, "./bun");
 
-    // const unzipResult = execSync("unzip", ["bun.zip", "-d", "./bun"]);
-    const unzipResult = execSync("unzip -u ./bun.zip -d ./bun");
-    // "unzip ./bun.zip -d ./bun"
-    // const unzipResult = spawnSync("unzip ./bun.zip -d ./bun");
+    fs.writeFileSync(bunZipPath, Buffer.from(zipBuffer));
+
+    const unzipResult = execSync(`unzip -u ${bunZipPath} -d ${bunFolderPath}`);
 
     if (unzipResult) {
       console.log(unzipResult.toString());
     }
 
-    // const extractedBun = zlib.unzipSync(zipBuffer);
     fs.mkdirSync(dir, { recursive: true });
 
-    // execSync("cp", ["./bun/bun-darwin-x64-baseline/bun", `${dir}/bun`]);
-    execSync(`cp ./bun/bun-darwin-x64-baseline/bun ${path}`);
+    const lsResult = execSync("ls -a");
+
+    execSync(
+      `sudo cp ${resolve(
+        bunFolderPath,
+        `bun-${process.platform}-${process.arch}-baseline/bun`
+      )} ${path}`
+    );
+
     // fs.writeFileSync(path, extractedBun, { encoding: "utf8" });
     version = await verifyBun(path);
   }

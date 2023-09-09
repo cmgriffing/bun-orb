@@ -10,4 +10,7 @@ usage:
   workflows:
     use-bun-orb:
       jobs:
+        - checkout
         - bun-orb/setup
+        - bun install
+        - bun build
