@@ -1,18 +1,14 @@
-#!/bin/node
-
 "use strict";
 
-import fs from "fs";
-import { homedir } from "os";
-import { join } from "path";
-import { getDownloadUrl, verifyBun } from "./setup/utils";
-import zlib from "zlib";
-import fetch from "fetch";
-import { execSync } from "child_process";
+const fs = require("fs");
+const { homedir } = require("os");
+const { join } = require("path");
+const zlib = require("zlib");
+const { execSync, spawnSync } = require("child_process");
 
 const BUN_VERSION = process.env.BUN_VERSION;
 
-export function getDownloadUrl(options = {}) {
+function getDownloadUrl(options = {}) {
   if (options?.customUrl) {
     return {
       url: options.customUrl,
@@ -36,12 +32,14 @@ export function getDownloadUrl(options = {}) {
   };
 }
 
-export async function verifyBun(path) {
-  const { exitCode, stdout } = execSync(path, ["--version"], {
+function verifyBun(path) {
+  console.log({ path });
+  const result = execSync(`${path} --version`, {
     ignoreReturnCode: true,
-    encoding: "utf8",
+    // encoding: "utf8",
   });
-  return exitCode === 0 ? stdout.trim() : undefined;
+  console.log({ result: result.toString().trim() });
+  return result ? result.toString().trim() : undefined;
 }
 
 async function setup() {
@@ -70,10 +68,31 @@ async function setup() {
   }
   if (!cacheHit) {
     console.info(`Downloading a new version of Bun: ${url}`);
-    const zipBuffer = await (await fetch(url)).arrayBuffer();
-    const extractedBun = zlib.inflate(zipBuffer);
+    const zipBuffer = await (
+      await fetch(url, {
+        headers: { "Accept-Encoding": "gzip, deflate, br" },
+        compress: false,
+        redirect: "follow",
+      })
+    ).arrayBuffer();
+
+    fs.writeFileSync("./bun.zip", Buffer.from(zipBuffer));
+
+    // const unzipResult = execSync("unzip", ["bun.zip", "-d", "./bun"]);
+    const unzipResult = execSync("unzip -u ./bun.zip -d ./bun");
+    // "unzip ./bun.zip -d ./bun"
+    // const unzipResult = spawnSync("unzip ./bun.zip -d ./bun");
+
+    if (unzipResult) {
+      console.log(unzipResult.toString());
+    }
+
+    // const extractedBun = zlib.unzipSync(zipBuffer);
     fs.mkdirSync(dir, { recursive: true });
-    fs.writeFileSync(path, extractedBun);
+
+    // execSync("cp", ["./bun/bun-darwin-x64-baseline/bun", `${dir}/bun`]);
+    execSync(`cp ./bun/bun-darwin-x64-baseline/bun ${path}`);
+    // fs.writeFileSync(path, extractedBun, { encoding: "utf8" });
     version = await verifyBun(path);
   }
   if (!version) {
