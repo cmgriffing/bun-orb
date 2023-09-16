@@ -3,14 +3,14 @@ description: >
 usage:
   version: 2.1
   orbs:
-    bun-orb: cmgriffing/bun-orb@0.0.24
+    bun-orb: cmgriffing/bun-orb@0.0.25
   jobs:
     build:
       docker:
         - image: cimg/node:18.17
       steps:
         - checkout
-        - bun/setup
+        - bun-orb/setup
         - restore_cache:
             keys:
               # Find a cache corresponding to this specific bun.lockb checksum
