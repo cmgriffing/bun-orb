@@ -80,7 +80,7 @@ async function setup() {
 
     fs.writeFileSync(bunZipPath, Buffer.from(zipBuffer));
 
-    execSync(`unzip -u ${bunZipPath} -d ${bunFolderPath}`);
+    execSync(`unzip -o ${bunZipPath} -d ${bunFolderPath}`);
 
     fs.mkdirSync(dir, { recursive: true });
 
