@@ -13,7 +13,12 @@ function getDownloadUrl(options = {}) {
       cacheKey: null,
     };
   }
-  const release = encodeURIComponent(options?.version ?? "latest");
+  let release = encodeURIComponent(options?.version ?? "latest");
+
+  if (release === "latest") {
+    release = execSync("npm show bun@latest version");
+  }
+
   const os = encodeURIComponent(options?.os ?? process.platform);
   const arch = encodeURIComponent(options?.arch ?? process.arch);
   const avx2 = encodeURIComponent(options?.avx2 ?? true);
