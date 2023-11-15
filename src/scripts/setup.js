@@ -36,7 +36,7 @@ function verifyBun(path) {
   const result = execSync(`${path} --version`, {
     ignoreReturnCode: true,
   });
-  console.log({ result: result.toString().trim() });
+  console.info(`Verified bun version: ${result.toString().trim()}`);
   return result ? result.toString().trim() : undefined;
 }
 
