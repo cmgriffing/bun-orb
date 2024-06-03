@@ -8,7 +8,6 @@ parameters:
 steps:
   - node/install:
       install-yarn: false
-      node-version: "18.17.1"
   - restore_cache:
       key: bun-{{ arch }}-<< parameters.version >>
   - run:
